@@ -45,4 +45,17 @@ public class MovieH2Service implements MovieRepository{
         return savedMovie;
     }
 
+    @Override
+    public Movie getMovieById(int movieId){
+        try{
+            return db.queryForObject(
+            "SELECT * FROM MOVIELIST WHERE movieId=?",
+            new MovieRowMapper(),
+            movieId
+            );
+        }
+        catch(Exception e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
 }
