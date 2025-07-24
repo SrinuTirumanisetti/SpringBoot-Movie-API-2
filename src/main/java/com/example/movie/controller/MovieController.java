@@ -40,4 +40,9 @@ public class MovieController{
     public Movie updateMovie(@RequestBody Movie movie,@PathVariable("movieId") int movieId){
         return service.updateMovie(movieId,movie);
     }
+
+    @DeleteMapping("/movies/{movieId}")
+    public void deleteMovie(@PathVariable("movieId") int movieId){
+        service.deleteMovie(movieId);
+    }
 }

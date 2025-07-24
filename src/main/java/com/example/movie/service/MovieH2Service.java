@@ -1,74 +1,70 @@
-/*
- * You can use the following import statements
- *
- * import org.springframework.beans.factory.annotation.Autowired;
- * import org.springframework.http.HttpStatus;
- * import org.springframework.jdbc.core.JdbcTemplate;
- * import org.springframework.stereotype.Service;
- * import org.springframework.web.server.ResponseStatusException;
- * import java.util.*;
- *
- */
-
-// Write your code here
 package com.example.movie.service;
 
-import org.springframework.web.bind.annotation.*;
-import com.example.movie.model.MovieRowMapper;
-import com.example.movie.model.Movie;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import java.util.*;
-import com.example.movie.repository.MovieRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.example.movie.model.Movie;
+import com.example.movie.model.MovieRowMapper;
+import com.example.movie.repository.MovieRepository;
 
 @Service
-public class MovieH2Service implements MovieRepository{
-    
+public class MovieH2Service implements MovieRepository {
+
     @Autowired
-    public JdbcTemplate db;
+    private JdbcTemplate db;
 
     @Override
-    public ArrayList<Movie> getMovies(){
-        Collection<Movie> movieList = db.query("SELECT * FROM MOVIELIST",new MovieRowMapper());
-        return new ArrayList<>(movieList);
+    public ArrayList<Movie> getMovies() {
+        List<Movie> movies = db.query("SELECT * FROM MOVIELIST", new MovieRowMapper());
+        return new ArrayList<>(movies);
     }
 
     @Override
-    public Movie addMovie(Movie movie){
-        db.update("INSERT INTO MOVIELIST(movieName,leadactor) values(?,?)",movie.getMovieName(),movie.getLeadActor());
+    public Movie addMovie(Movie movie) {
+        db.update("INSERT INTO MOVIELIST(movieName, leadActor) VALUES(?, ?)",
+                movie.getMovieName(), movie.getLeadActor());
+
         Movie savedMovie = db.queryForObject(
-            "SELECT * FROM MOVIELIST WHERE movieName=? AND leadActor=?",
-            new MovieRowMapper(),
-            movie.getMovieName(),movie.getLeadActor()
+                "SELECT * FROM MOVIELIST ORDER BY movieId DESC LIMIT 1",
+                new MovieRowMapper()
         );
         return savedMovie;
     }
 
     @Override
-    public Movie getMovieById(int movieId){
-        try{
+    public Movie getMovieById(int movieId) {
+        try {
             return db.queryForObject(
-            "SELECT * FROM MOVIELIST WHERE movieId=?",
-            new MovieRowMapper(),
-            movieId
+                    "SELECT * FROM MOVIELIST WHERE movieId = ?",
+                    new MovieRowMapper(),
+                    movieId
             );
-        }
-        catch(Exception e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found");
         }
     }
 
     @Override
-    public Movie updateMovie(int movieId,Movie movie){
-        if(movie.getMovieName()!=null){
-            db.update("UPDATE MOVIELIST SET movieName=? where movieId=?",movie.getMovieName(),movieId);
+    public Movie updateMovie(int movieId, Movie movie) {
+        if (movie.getMovieName() != null) {
+            db.update("UPDATE MOVIELIST SET movieName = ? WHERE movieId = ?",
+                    movie.getMovieName(), movieId);
         }
-        if(movie.getLeadActor()!=null){
-            db.update("UPDATE MOVIELIST SET leadActor=? where movieId=?",movie.getLeadActor(),movieId);
+        if (movie.getLeadActor() != null) {
+            db.update("UPDATE MOVIELIST SET leadActor = ? WHERE movieId = ?",
+                    movie.getLeadActor(), movieId);
         }
         return getMovieById(movieId);
+    }
+
+    @Override
+    public void deleteMovie(int movieId) {
+        db.update("DELETE FROM MOVIELIST WHERE movieId = ?", movieId);
     }
 }
