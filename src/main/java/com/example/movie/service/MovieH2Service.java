@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 import com.example.movie.repository.MovieRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @Service
 public class MovieH2Service implements MovieRepository{
@@ -57,5 +59,16 @@ public class MovieH2Service implements MovieRepository{
         catch(Exception e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @Override
+    public Movie updateMovie(int movieId,Movie movie){
+        if(movie.getMovieName()!=null){
+            db.update("UPDATE MOVIELIST SET movieName=? where movieId=?",movie.getMovieName(),movieId);
+        }
+        if(movie.getLeadActor()!=null){
+            db.update("UPDATE MOVIELIST SET leadActor=? where movieId=?",movie.getLeadActor(),movieId);
+        }
+        return getMovieById(movieId);
     }
 }
