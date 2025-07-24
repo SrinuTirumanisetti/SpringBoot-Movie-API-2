@@ -34,5 +34,15 @@ public class MovieH2Service implements MovieRepository{
         return new ArrayList<>(movieList);
     }
 
+    @Override
+    public Movie addMovie(Movie movie){
+        db.update("INSERT INTO MOVIELIST(movieName,leadactor) values(?,?)",movie.getMovieName(),movie.getLeadActor());
+        Movie savedMovie = db.queryForObject(
+            "SELECT * FROM MOVIELIST WHERE movieName=? AND leadActor=?",
+            new MovieRowMapper(),
+            movie.getMovieName(),movie.getLeadActor()
+        );
+        return savedMovie;
+    }
 
 }

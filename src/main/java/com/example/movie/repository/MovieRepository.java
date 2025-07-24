@@ -7,4 +7,5 @@ import java.util.*;
 
 public interface MovieRepository{
     ArrayList<Movie> getMovies();
+    Movie addMovie(Movie movie);
 }

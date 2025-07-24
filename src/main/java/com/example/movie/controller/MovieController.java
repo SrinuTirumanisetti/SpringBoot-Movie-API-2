@@ -25,4 +25,9 @@ public class MovieController{
     public ArrayList<Movie> getMovies(){
         return service.getMovies();
     }
+
+    @PostMapping("/movies")
+    public Movie addMovie(@RequestBody Movie movie){
+        return service.addMovie(movie);
+    }
 }
